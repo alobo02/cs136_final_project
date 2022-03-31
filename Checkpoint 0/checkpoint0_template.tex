@@ -1,0 +1,87 @@
+\documentclass[12pt]{article}
+\usepackage{fullpage} 
+\usepackage{microtype}      % microtypography
+\usepackage{array}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{amsthm}
+
+%% Header
+\usepackage{fancyhdr}
+\fancyhf{}
+\fancyhead[C]{CS 136 - 2022s - Checkpoint0 Submission}
+\fancyfoot[C]{\thepage} % page number
+\renewcommand\headrulewidth{0pt}
+\pagestyle{fancy}
+
+\usepackage[headsep=0.5cm,headheight=2cm]{geometry}
+
+%% Hyperlinks always blue, no weird boxes
+\usepackage[hyphens]{url}
+\usepackage[colorlinks=true,allcolors=black,pdfborder={0 0 0}]{hyperref}
+
+%%% Doc layout
+\usepackage{parskip}
+\usepackage{times}
+
+%%% Write out problem statements in blue, solutions in black
+\usepackage{color}
+\newcommand{\officialdirections}[1]{{\color{blue} #1}}
+
+%%% Avoid automatic section numbers (we'll provide our own)
+\setcounter{secnumdepth}{0}
+
+\begin{document}
+~~\\ %% add vert space
+
+{\Large{\bf Student Names: Nate Davis and Alexander Lobo}}
+
+
+{\Large{\bf Collaboration Statement:}}
+
+Turning in this assignment indicates you have abided by the course Collaboration Policy:
+
+\url{www.cs.tufts.edu/comp/136/2022s/index.html#collaboration-policy}
+
+Total hours spent: 1
+
+We consulted the following resources:
+\begin{itemize}
+\item Course Website
+\item UCI Machine Learning Repository
+\end{itemize}
+
+FYI Official instructions for this checkpoint can be found at:
+
+\url{www.cs.tufts.edu/comp/136/2022s/checkpoint0.html}
+
+
+\newpage
+
+Note: the submission length limit for this is one page (not including the cover page).  You should not be writing more than a few sentences to a paragraph for each of these pieces.
+
+\section{Team}
+
+\textbf{Team Members:} Nate Davis and Alexander Lobo
+
+\section{Dataset}
+
+\subsection{Dataset Access}
+
+\textbf{Access:} \url{https://archive.ics.uci.edu/ml/datasets/Musk+%28Version+2%29}
+
+\textbf{Description:}
+
+The dataset contains measures of distances within different shapes (conformations) of a set of 102 molecules. The study that this data comes from used human experts to judge the smell of each molecule and determine whether it is characterized as "musk" or "non-musk", which makes this a binary classification dataset.
+
+\subsection{Dataset Properties}
+
+\textbf{Number of instances:} There are 6,598 conformations total.
+
+\textbf{Number of features:} There are 166 features (not including the molecule and conformation names).
+
+\subsection{Model-Related Properties}
+
+We plan on using  a probabilistic logistic regression model to characterize the data. We intend to use a multi-variate normal prior on the weight vector. We plan to use feature "class" as the binary target for our probabilistic logistic regression model.
+
+\end{document}
+
