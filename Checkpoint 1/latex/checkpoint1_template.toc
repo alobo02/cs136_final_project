@@ -1,0 +1,17 @@
+\contentsline {section}{General information about the data}{2}{section*.2}%
+\contentsline {section}{Exploratory Data Analysis}{2}{section*.3}%
+\contentsline {subsection}{Describing your analysis}{2}{section*.4}%
+\contentsline {subsection}{Analyzing the results}{3}{section*.5}%
+\contentsline {subsubsection}{General Trends}{3}{section*.6}%
+\contentsline {subsubsection}{Marginal Distribution of Features}{4}{section*.7}%
+\contentsline {subsubsection}{Feature-Feature and Feature-Outcome Correlations}{5}{section*.8}%
+\contentsline {subsubsection}{Joint Feature Distributions}{7}{section*.9}%
+\contentsline {subsubsection}{Principal Component Analysis}{8}{section*.10}%
+\contentsline {subsubsection}{Outcome Distribution}{8}{section*.11}%
+\contentsline {section}{Model and Learning Method Properties}{10}{section*.12}%
+\contentsline {subsection}{Model}{10}{section*.13}%
+\contentsline {subsubsection}{Prior}{10}{section*.14}%
+\contentsline {subsubsection}{Likelihood}{10}{section*.15}%
+\contentsline {subsubsection}{Posterior}{11}{section*.16}%
+\contentsline {subsection}{Learning method (inference)}{12}{section*.17}%
+\contentsline {section}{Performance Hypotheses}{12}{section*.18}%
