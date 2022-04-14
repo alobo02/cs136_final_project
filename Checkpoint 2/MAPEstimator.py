@@ -1,4 +1,5 @@
 import numpy as np
+import warnings
 
 class MAPEstimator():
     """
@@ -8,12 +9,23 @@ class MAPEstimator():
     ----------
     w_D   : D-dimensional vector of reals
             Defines weight vector
+    prior : string
+            Defines prior that will be used options: ('trivial','sas')
+            'sas' stands for 'spike-and-slab'
     alpha : float, must be greater than 0
-            Defines precision parameter of the multivariate Gaussian prior on the weight vector
-    iteration_count: integer
-            Defines number of iterations it took for model to converge on last call of fit()
-
+            Defines precision parameter of the multivariate Gaussian prior for the weight vector or the "spike" multivariate Gaussian on the GMM prior for the weight vector
+    beta  : float, must be greater than 0 (optional)
+            Defines precision parameter of the "slab" Gaussian on the GMM prior for the weight vector
+    max_iter: integer
+            Defines max number of iterations model can take to converge on fit()
+    step_size: float must be greater than 0
+            The step size of the gradient descent algorithm
+    max_iter: int greater than 0
+            Maximum number of iterations that the gradient descent algorithm will take
+            
+            
     Examples
+    # TODO : Update this example or delete it
     --------
     >>> word_list = ['dinosaur', 'trex', 'dinosaur', 'stegosaurus']
     >>> mapEst = MAPEstimator(Vocabulary(word_list), alpha=2.0)
@@ -27,14 +39,23 @@ class MAPEstimator():
     KeyError: 'Word never_seen-before not in the vocabulary'
     """
 
-    def __init__(self, w_D, alpha=1.0):
+    def __init__(self, w_D, prior='trivial', alpha=1.0, beta=None, max_iter=30000, tol=1e-4, step_size=1.0, iteration_count=0):
+        #TODO decide on max_iter
         self.w_D = w_D
+        self.c = 0
         self.alpha = float(alpha)
-        self.iteration_count = 0
+        self.max_iter = max_iter
+        self.tol = tol
+        self.step_size = step_size
+        self.iteration_count = iteration_count
+        self.prior = prior
+        if prior != 'trivial':
+            self.beta = beta
         
 
-    def fit(self, train_X, train_y, step_size = 1.0, max_iter = 100):
-        ''' Fit this estimator to provided training data with first order stochastic gradient descent
+    def fit(self, train_X, train_y):
+        ''' 
+        Fit this estimator to provided training data with first order stochastic gradient descent
 
         Args
         ----
@@ -42,10 +63,7 @@ class MAPEstimator():
             Each entry is a D-dimensional vector representing a training example
         train_y : Nx1 array
             Each entry is corresponding output class for training data
-        step_size: float must be greater than 0
-            The step size of the gradient descent algorithm
-        max_iter: int greater than 0
-            Maximum number of iterations that the gradient descent algorithm will take
+            
                     
         Returns
         -------
@@ -62,17 +80,51 @@ class MAPEstimator():
         example_num = 0
         num_examples = len(train_X)
         
-        while(self.iteration_count <= max_iter):
-            h_x = np.dot(self.w_D, train_X[example_num])
-            sig = 1 / (1 + exp(-h_x))
-            self.w_D = self.w_D - step_size * (sig - test_y[example_num]) * train_X[example_num] + self.alpha * self.w_D
-            example_num += 1
-            if example_num >= num_examples:
-                example_num = 0
-            self.iteration_count += 1
+        if self.prior == 'trivial':
+            
+            count_10 = 0
+            loss_10 = []
+            L_avg = np.inf
+            diff_L = np.inf
+            L_avg_prev = np.inf
+        
+            while(self.iteration_count <= self.max_iter) and (diff_L > self.tol):
+            # TODO : spit out a warning if the max_iter is reached
+                #print('iteration: %i' % self.iteration_count)
+                h_x = np.dot(self.w_D, train_X[example_num]) + self.c
+                #print('h_x: ' + str(h_x))
+                print('w_D: ' + str(self.w_D))
+                print('c: ' + str(self.c))
+                sig = 1 / (1 + np.exp(-h_x))
+                #print('sig: ' + str(sig))
+                L = train_y[example_num] * np.log(sig) + (1-train_y[example_num]) * np.log(1-sig)
+                #print('L:' + str(L))
+                loss_10.append(L)
+                count_10 += 1
+
+                if count_10 == 10:
+                    L_avg = np.mean(loss_10)
+                    diff_L = np.abs(L_avg_prev - L_avg)
+                    count_10 = 0
+                    loss_10 = []
+                    L_avg_prev = L_avg
+
+                self.w_D = self.w_D - self.step_size * (sig - train_y[example_num]) * train_X[example_num] + self.alpha * self.w_D
+                self.c = self.c - self.step_size * (sig - train_y[example_num])
+                example_num += 1
+                if example_num >= num_examples:
+                    example_num = 0
+                self.iteration_count += 1
+                
+            if self.iteration_count == self.max_iter:
+                warnings.warn("Maximum iterations reached")
+        
+        #else:
+            #TODO: Code up the SGD for the sas prior
 
     def predict_proba(self, test_X):
-        ''' Predict probability of a given set of feature vectors under this model
+        ''' 
+        Predict probability of a given set of feature vectors under this model
 
         Args
         ----
@@ -88,12 +140,10 @@ class MAPEstimator():
         ValueError if hyperparameters do not allow MAP estimation
         KeyError if the provided word is not in the vocabulary
         '''
-
-        # TODO calculate MAP estimate of the provided word
         
         lin_preds = np.matmul(test_X, self.w_D)
         
-        sig_preds = 1 / (1 + exp(-lin_preds))
+        sig_preds = 1 / (1 + np.exp(-lin_preds))
         
         return sig_preds
 
@@ -113,15 +163,9 @@ class MAPEstimator():
         '''
         correct_count = 0
         num_examples = len(test_X)
-    
-        for i in range(num_examples):
-            pred_proba = self.predict_proba(test_X[i])
-            if pred_proba < 0.5:
-                pred_class = 0
-            else:
-                pred_class = 1
-                
-            if (pred_class == test_y[i]):
-                correct_count += 1
-            
-        return correct_count / num_examples
+        
+        pred_proba = self.predict_proba(test_X)
+        pred_class = pred_proba > 0.5
+        is_correct = pred_class == test_y
+        
+        return np.sum(is_correct) / num_examples
