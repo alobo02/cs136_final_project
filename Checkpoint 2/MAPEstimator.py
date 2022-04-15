@@ -1,5 +1,8 @@
 import numpy as np
+import random
 import warnings
+from numpy.random import RandomState
+
 
 class MAPEstimator():
     """
@@ -87,30 +90,65 @@ class MAPEstimator():
             L_avg = np.inf
             diff_L = np.inf
             L_avg_prev = np.inf
+            
+#             while(self.iteration_count <= self.max_iter) and (diff_L > self.tol):
+#             # TODO : spit out a warning if the max_iter is reached
+#                 #print('iteration: %i' % self.iteration_count)
+                
+#                 h_x = np.matmul(self.w_D.transpose(), train_X) + self.c
+#                 #print('h_x: ' + str(h_x))
+# #                 print('w_D: ' + str(self.w_D))
+# #                 print('c: ' + str(self.c))
+#                 sig = 1 / (1 + np.exp(-h_x))
+# #                 print('sig: ' + str(sig))
+# #                 print('train_y: ' + str(train_y[example_num]))
+#                 L = np.dot(train_y, np.log(sig)) + np.dot((1-train_y), np.log(1-sig))
+#                 print('L:' + str(L))
+# #                 loss_10.append(L)
+# #                 count_10 += 1
+
+# #                 if count_10 == 1000:
+#                 diff_L = np.abs(L_avg_prev - L)
+#                 L_avg_prev = L
+
+#                 self.w_D = self.w_D - self.step_size * (np.matmul(train_X.transpose(),(sig - train_y)) + self.alpha * self.w_D)
+#                 self.c = self.c - self.step_size * (sig - train_y)
+
+# #                 if example_num >= num_examples:
+# #                     example_num = 0
+# #                 self.iteration_count += 1
+                
+#             if self.iteration_count == self.max_iter:
+#                 warnings.warn("Maximum iterations reached")
+
+            prng = RandomState(136)
         
             while(self.iteration_count <= self.max_iter) and (diff_L > self.tol):
             # TODO : spit out a warning if the max_iter is reached
                 #print('iteration: %i' % self.iteration_count)
+                example_num = prng.randint(0, num_examples-1)
                 h_x = np.dot(self.w_D, train_X[example_num]) + self.c
                 #print('h_x: ' + str(h_x))
-                print('w_D: ' + str(self.w_D))
-                print('c: ' + str(self.c))
+#                 print('w_D: ' + str(self.w_D))
+#                 print('c: ' + str(self.c))
                 sig = 1 / (1 + np.exp(-h_x))
-                #print('sig: ' + str(sig))
+#                 print('sig: ' + str(sig))
+#                 print('train_y: ' + str(train_y[example_num]))
                 L = train_y[example_num] * np.log(sig) + (1-train_y[example_num]) * np.log(1-sig)
                 #print('L:' + str(L))
                 loss_10.append(L)
                 count_10 += 1
 
-                if count_10 == 10:
+                if count_10 == 1000:
                     L_avg = np.mean(loss_10)
+#                     print(L_avg)
                     diff_L = np.abs(L_avg_prev - L_avg)
                     count_10 = 0
                     loss_10 = []
                     L_avg_prev = L_avg
 
-                self.w_D = self.w_D - self.step_size * (sig - train_y[example_num]) * train_X[example_num] + self.alpha * self.w_D
-                self.c = self.c - self.step_size * (sig - train_y[example_num])
+                self.w_D = self.w_D - (self.step_size + train_y[example_num]*0.1)* ((sig - train_y[example_num]) * train_X[example_num] + self.alpha * self.w_D)
+                self.c = self.c - (self.step_size + train_y[example_num]*0.1) * (sig - train_y[example_num])
                 example_num += 1
                 if example_num >= num_examples:
                     example_num = 0
