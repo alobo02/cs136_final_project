@@ -42,7 +42,7 @@ class MAPEstimator():
     KeyError: 'Word never_seen-before not in the vocabulary'
     """
 
-    def __init__(self, w_D, prior='trivial', alpha=1.0, beta=None, max_iter=30000, tol=1e-4, step_size=1.0, iteration_count=0):
+    def __init__(self, w_D, prior='trivial', step_size_type = 'universal', alpha=1.0, beta=None, max_iter=30000, tol=1e-4, step_size=1.0, iteration_count=0):
         #TODO decide on max_iter
         self.w_D = w_D
         self.c = 0
@@ -50,8 +50,10 @@ class MAPEstimator():
         self.max_iter = max_iter
         self.tol = tol
         self.step_size = step_size
+        self.step_size_type = step_size_type
         self.iteration_count = iteration_count
         self.prior = prior
+        self.loss_array = []
         if prior != 'trivial':
             self.beta = beta
         
@@ -82,6 +84,8 @@ class MAPEstimator():
         
         example_num = 0
         num_examples = len(train_X)
+        
+        self.loss_array = []
         
         if self.prior == 'trivial':
             
@@ -139,19 +143,25 @@ class MAPEstimator():
                 loss_10.append(L)
                 count_10 += 1
 
-                if count_10 == 1000:
+                if count_10 == 100000:
                     L_avg = np.mean(loss_10)
 #                     print(L_avg)
+                    self.loss_array.append(L_avg)
                     diff_L = np.abs(L_avg_prev - L_avg)
                     count_10 = 0
                     loss_10 = []
                     L_avg_prev = L_avg
-
-                self.w_D = self.w_D - (self.step_size + train_y[example_num]*0.1)* ((sig - train_y[example_num]) * train_X[example_num] + self.alpha * self.w_D)
-                self.c = self.c - (self.step_size + train_y[example_num]*0.1) * (sig - train_y[example_num])
-                example_num += 1
-                if example_num >= num_examples:
-                    example_num = 0
+                
+                if self.step_size_type == 'universal':
+                    self.w_D = self.w_D - self.step_size * ((sig - train_y[example_num]) * train_X[example_num] + self.alpha * self.w_D)
+                    self.c = self.c - self.step_size * (sig - train_y[example_num])
+                else:
+                    self.w_D = self.w_D - (self.step_size + train_y[example_num]*0.1)* ((sig - train_y[example_num]) * train_X[example_num] + self.alpha * self.w_D)
+                    self.c = self.c - (self.step_size + train_y[example_num]*0.1) * (sig - train_y[example_num])
+                
+#                 example_num += 1
+#                 if example_num >= num_examples:
+#                     example_num = 0
                 self.iteration_count += 1
                 
             if self.iteration_count == self.max_iter:
