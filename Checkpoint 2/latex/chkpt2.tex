@@ -4,6 +4,7 @@
 \usepackage{array}
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{amsthm}
+\usepackage{graphicx}
 
 %% Header
 \usepackage{fancyhdr}
@@ -43,7 +44,7 @@ Turning in this assignment indicates you have abided by the course Collaboration
 
 \url{www.cs.tufts.edu/comp/136/2022s/index.html#collaboration-policy}
 
-Total hours spent: TODO
+Total hours spent: 10-15
 
 We consulted the following resources:
 \begin{itemize}
@@ -133,16 +134,28 @@ We decided to first test our model with a learning rate and $\alpha$ value of bo
 
 \section{Evaluating Hypotheses from Checkpoint 1}
 
-We tweaked our hypotheses from Checkpoint 1. The two that are testable at this stage are now:
-\begin{itemize}
-    \item We hypothesize that our multivariate logistic regression model with first-order stochastic gradient descent will converge in fewer iterations when we use a spike and slab prior as we assume that, with 166 features, some should conceivably have little to no weight while others will bear the brunt of prediction.
-\end{itemize}
+We have tweaked our hypotheses from Checkpoint 1. The one that is testable at this stage is now:
 
 \begin{itemize}
-    \item We hypothesize that our multivariate logistic regression model with first-order stochastic gradient descent will converge in fewer iterations when we use different step sizes for misclassifying the two output classes as our output classes are highly imbalanced.
+    \item We hypothesize that our multivariate logistic regression model with first-order stochastic gradient descent will converge in fewer iterations, but with ultimately similar accuracy, when we use different step sizes for misclassifying the two output classes, as our output classes are highly imbalanced.
 \end{itemize}
 
-We chose to evaluate each of our hypotheses by training the model using K-fold cross validation with 10 folds, noting how many iterations it took the model to converge for each fold, and averaging those numbers. 
+We evaluated this hypothesis via (shuffled) K-fold cross validation with 10 folds, noting how many iterations it took the model to converge for each fold and the accuracy on the held-out examples. The hyperparameters held fixed across the tests were a prior weight vector of zeros with precision of 0.1, a standard step size of 0.1 and, in the dynamic case, a step size of 0.2 for musks, a convergence tolerance of $10^{-4}$, and a max iteration count of 10,000,000.
+
+The results can be seen in the following graphs:
+
+\includegraphics[scale=.7]{iter_counts.png}
+
+\includegraphics[scale=.7]{accuracy_rates.png}
+
+The first shows the distribution of iteration counts (in millions) for the training of each of the models until convergence. The median of the model trained with dynamic step size is slightly higher than that of the static model, but the variance is much smaller, especially on the high end. The longest the dynamic model took to train was approximately 2 million iterations while the static model has two training runs that took far longer. The interquartile range for the model with dynamic step size is also quite a bit smaller.
+
+As for accuracy rate, the results are somewhat flipped, with the dynamic step size model having a higher median and interquartile range, but a much larger range of outcomes overall. 
+
+Our hypothesis, which contains two sub-hypotheses, was correct to an extent. The model with dynamic step size certainly seems to have iteration counts that generally cluster around a lower value, but the median value for the static step size is actually smaller. The difference really seems to be more about variance than a representative value.
+
+As for the accuracy rate, we did not foresee the dynamic model performing better than the static, and also said nothing regarding the variance of results. We thought that the models might converge to the same places, but perhaps with the randomness we introduced into the training process, the models reached our (somewhat arbitrary) conversion threshold at different times.
+
 
 \section{Proposing an Upgrade to your Model or Learning Method}
 
