@@ -1,0 +1,15 @@
+\contentsline {section}{Applying Model to Dataset}{2}{section*.2}%
+\contentsline {subsection}{Initialization}{2}{section*.3}%
+\contentsline {subsection}{Training}{3}{section*.4}%
+\contentsline {subsection}{Evaluation}{3}{section*.5}%
+\contentsline {subsection}{Bottlenecks}{3}{section*.6}%
+\contentsline {section}{Evaluating Hypotheses from Checkpoint 1}{5}{section*.8}%
+\contentsline {section}{Proposing an Upgrade to your Model or Learning Method}{7}{section*.11}%
+\contentsline {subsection}{Upgrade 1: First to Second-Order Gradient Descent}{7}{section*.12}%
+\contentsline {subsubsection}{Description}{7}{section*.13}%
+\contentsline {subsubsection}{Implementation}{8}{section*.14}%
+\contentsline {subsubsection}{Benefit(s)}{8}{section*.15}%
+\contentsline {subsection}{Upgrade 2: Changing Prior}{9}{section*.16}%
+\contentsline {subsubsection}{Description}{9}{section*.17}%
+\contentsline {subsubsection}{Implementation}{9}{section*.18}%
+\contentsline {subsubsection}{Benefit(s)}{9}{section*.19}%
