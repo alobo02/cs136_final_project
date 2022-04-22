@@ -27,5 +27,6 @@
     - Run without a termination condition to see if it converges after X iterations
     - Try changing the loss function to be the product of the likelihood and prior
     - Run the data with sklearn (without regularization) so that we can compare to our model without a prior
+    - Consider running code with autograd in case we have messed up our derivative equations
 - General notes:
     - Looks like our sign might be inverted?
