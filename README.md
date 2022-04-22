@@ -18,3 +18,15 @@
 - Friday:
     - Nate went ahead and coded the _init_ and the gradient descent algorithm (first-order)
     - Alex needs to go in an make some edits / code up the other methods
+
+## Pre-Checkpoint 3:
+- Spoke to Ike during office hours and he reccomended doing the following to help troubleshoot our code:
+    - Make your stepsize very small
+    - Try running it without the prior to see if it converges
+    - Try doing Batch/Mini-batch gradient descent
+    - Run without a termination condition to see if it converges after X iterations
+    - Try changing the loss function to be the product of the likelihood and prior
+    - Run the data with sklearn (without regularization) so that we can compare to our model without a prior
+    - Consider running code with autograd in case we have messed up our derivative equations
+- General notes:
+    - Looks like our sign might be inverted?
