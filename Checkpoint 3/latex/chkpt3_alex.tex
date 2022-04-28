@@ -1,0 +1,273 @@
+\documentclass[12pt]{extarticle}
+\usepackage{fullpage} 
+\usepackage{microtype}      % microtypography
+\usepackage{array}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage[makeroom]{cancel}
+\usepackage{mathtools}
+\usepackage{caption}
+%% Header
+\usepackage{fancyhdr}
+\fancyhf{}
+\fancyhead[C]{CS 136 - 2022s - Checkpoint3 Submission}
+\fancyfoot[C]{\thepage} % page number
+\renewcommand\headrulewidth{0pt}
+\pagestyle{fancy}
+
+\usepackage[headsep=0.5cm,headheight=2cm]{geometry}
+
+%% Hyperlinks always blue, no weird boxes
+\usepackage[hyphens]{url}
+\usepackage[colorlinks=true,allcolors=black,pdfborder={0 0 0}]{hyperref}
+
+%%% Doc layout
+\usepackage{parskip}
+\usepackage{times}
+
+%%% Write out problem statements in blue, solutions in black
+\usepackage{color}
+\newcommand{\officialdirections}[1]{{\color{blue} #1}}
+
+%%% Avoid automatic section numbers (we'll provide our own)
+\setcounter{secnumdepth}{0}
+
+\begin{document}
+~~\\ %% add vert space
+
+\begin{center}
+{\Large{\bf Student Names: Alexander Lobo and Nate Davis}}
+\end{center}
+
+{\Large{\bf Collaboration Statement:}}
+
+Turning in this assignment indicates you have abided by the course Collaboration Policy:
+
+\url{www.cs.tufts.edu/comp/136/2022s/index.html#collaboration-policy}
+
+Total hours spent: TODO
+
+We consulted the following resources:
+\begin{itemize}
+\item TODO
+\item TODO
+\item $\ldots$	
+\end{itemize}
+
+\tableofcontents
+
+\newpage
+
+\section{Recap of your dataset, your model, and the issues you hope to address with your upgrade}
+
+Our dataset contains 6,598 confirmations (orientations/rotations) of 102 molecules, all of which have been classified in terms of smell as musk or non-musk by human experts. If a molecule has been deemed a musk, all of its confirmations are listed so, and the same is true for non-musks. The features of our dataset comprise 166 measures of intramolecular distance.
+
+We are using a logistic regression model with a sigmoid link function and multivariate Gaussian prior on the weight vector to predict whether a given confirmation is musk or non-musk. Our learning method is first-order stochastic gradient descent 
+
+The upgrades we propose are:
+\begin{enumerate}
+    \item changing our learning method to second-order stochastic gradient descent and
+    \item changing our prior to a spike and slab prior.
+\end{enumerate}
+The main problem we seek to address with these upgrades is the time it takes to train our model. Incorporating information from the second derivative of the loss function, as occurs in second-order gradient descent, should allow the model to converge more quickly. When looking at the model coefficients learned from our dataset, it appears that many lie close to zero while many others are orders of magnitude larger. We believe that the spike and slab prior, which tends to split weights into these two categories, might also help the model to converge more quickly.
+
+\newpage
+
+\section{Detailed description of your upgrade}
+
+\subsection{Overview}
+
+The purpose of this study is to explore how our model performs when upgrading our
+learning method from a first order to a second order gradient descent algorithm to solve the
+weight vector MAP estimate for logistic regression. As stated previously in Checkpoint 2, considering the issues we had with training convergence and prediction accuracy when testing our model for this checkpoint, we have actually decided to expand our scope to two upgrades.
+
+\textbf{Upgrades:}
+
+\begin{enumerate}
+\item Upgrade gradient descent algorithm to obtain the MAP estimate for Bayesian logistic regression from a first-order stochastic gradient descent to a second-second order stochastic gradient descent
+\item Upgrade the prior distribution from a "trivial" prior to a "spike-and-slab" prior
+\end{enumerate}
+
+
+Considering both of these upgrades, we propose the following hypotheses
+for how we expect our model to perform.
+
+\textbf{Hypotheses:}
+
+\begin{enumerate}
+\item We hypothesize that the time and iterations needed to compute the weight vectors will decrease
+after upgrading from a first order to second order gradient descent.
+
+\item We hypothesize that our multivariate logistic regression model with both first-order and second-order stochastic gradient descent will converge in fewer iterations when we use a spike-and-slab prior.
+
+\item We hypothesize that our multivariate logistic regression model with second-order stochastic gradient descent will converge in fewer iterations, but with ultimately similar accuracy, when we use different step sizes for misclassifying the two output classes, as our output classes are highly imbalanced.
+
+	\begin{itemize}
+	\item Since we were already able to test this hypothesis with first-order gradient descent with positive results, we expect the same to occur with second-order.
+	\end{itemize}
+
+\end{enumerate}
+
+
+\subsection{Upgrade 1: First to Second-Order Gradient Descent}
+
+\subsubsection{Description}
+In Bayesian logistic regression, the Posterior distribution is a useful probability distribution that may be used to predict the probability of certain weight vectors given then occurrence of specific data. It is a powerful tool that allows us to utilize information from the Likelihood (probability of data given weight vector), the Prior (a priori knowledge about the weight vector), the Evidence (marginal probability of the data). One goal of Bayesian reasoning for logistic regression is to find the most probable weight vector that maximizes the probability density of the Posterior, which is known as the MAP estimate. By taking the negative of the Posterior, we can convert our optimization problem from a maximization to a minimization problem by convention. However, unlike with linear regression, the MAP estimate of logistic regression is not known to have an analytical solution. Therefore we depend on optimization methods like gradient descent to solve
+
+\begin{equation}
+\hat{\textbf{w}}_{\mathrm{MAP}} = \arg\min_{\textbf{w} \in \mathbb{R}^M} -\ln p(\textbf{w}|\textbf{t}) 
+\end{equation}
+
+where $M$ is feature dimension and $-\ln p(\textbf{w}|\textbf{t})$ is the negative of the posterior distribution.
+
+We then have two options to choose from: first-order and second-order gradient descent. First order gradient descent uses a first-order derivative of the Posterior to make a step change in the weight vector, while second-order gradient descent uses a second-order derivative.
+
+This upgrade falls under \textbf{Option 3} (Changing the inference method) out those provided.
+
+\subsubsection{Relevant Equations}
+
+\textbf{\textit{Probability Distributions}}
+
+To recapitulate, The log posterior distribution is given by the following formula:
+
+\begin{equation}
+    \ln p(\textbf{w}|\textbf{t}) = \underbrace{\sum_{n=1}^N \ln p(t_n|\textbf{w})}_{\text{log Likelihood}} + \underbrace{\ln p(\textbf{w}|\alpha)}_{\text{log Prior}} - \underbrace{\ln p(\textbf{t})}_{\text{log Evidence}}
+\end{equation}
+
+where the log Likelihood is given by
+
+\begin{align}
+    \sum_{n=1}^N \ln p(t_n|\textbf{w}) &= \sum_{n=1}^N \ln \mathrm{Bern}(t_n | \sigma(\textbf{w}^\top \phi(x_n)) \\
+    &= \sum_{n=1}^N \ln [y_n^{t_n}(1-y_n)^{1-t_n}] \\
+    &= \sum_{n=1}^N t_n\ln (y_n) + (1-t_n) \ln (1-y_n)
+\end{align}
+
+and $y_n$ is given by
+
+\begin{align}
+	y_n = p(\mathcal{C}_1|\phi(x_n)) &= \sigma(\textbf{w}^\top \phi(x_n)) \\
+	&= \sigma(\textbf{w}^\top x_n)
+\end{align}
+
+since we are not using a kernel function. The log Prior (at the moment) is given by
+
+\begin{align}
+    \ln p(\textbf{w}|\alpha) &= \ln \mathcal{N}(\mathbf{w}|\vec{0}, \alpha^{-1} I_{166}) \\
+    &= \ln \left[ \frac{\alpha}{\sqrt{2 \pi}} \exp \left\{-\frac{1}{2} \alpha \mathbf{w}^\top \mathbf{w}\right\} \right] \\
+    &= \ln \alpha - \frac{1}{2} \ln 2\pi - \frac{1}{2} \alpha \mathbf{w}^\top \mathbf{w}
+\end{align}
+
+Now, substituting equations (5) and (9) into (2), we see that the log Posterior is now given by
+
+\begin{equation}
+    \ln p(\textbf{w}|\textbf{t}) = \sum_{n=1}^N t_n\ln (y_n) + (1-t_n) \ln (1-y_n) + \ln \alpha - \frac{1}{2} \ln 2\pi - \frac{1}{2} \alpha \mathbf{w}^\top \mathbf{w} - \ln p(\mathbf{t})
+\end{equation}
+
+\newpage
+
+\textbf{\textit{First-Order Stochastic Gradient Descent}}
+
+Now, since our objective is to find the MAP estimate for $\mathbf{w}$, we can write our loss equation as the following, grouping terms that are constant.
+
+\begin{equation}
+    \ln \mathcal{L}(\mathbf{w}) = - \ln p(\textbf{w}|\textbf{t}) = - \left( \sum_{n=1}^N t_n\ln (y_n) + (1-t_n) \ln (1-y_n) \right) + \frac{1}{2} \alpha \mathbf{w}^\top \mathbf{w} + \cancel{constant} \\
+\end{equation}
+
+which can be further simplified by removing terms that are constant with respect to $\mathbf{w}$ and replacing the terms for $y_n$ given equation (7)
+
+\begin{equation}
+    \ln \mathcal{L}(\mathbf{w}) = - \left( \sum_{n=1}^N t_n\ln (\sigma(\textbf{w}^\top x_n)) + (1-t_n) \ln (1-\sigma(\textbf{w}^\top x_n)) \right) + \frac{1}{2} \alpha \mathbf{w}^\top \mathbf{w}
+\end{equation}
+
+Now, with using Bishop equation (4.91), we can take the gradient of the log loss with respect to $\mathbf{w}$ to obtain
+
+\begin{equation}
+     \nabla_\mathbf{w} \ln \mathcal{L}(\mathbf{w}) =  \sum_{n=1}^N \sigma(\textbf{w}^\top x_n) - t_n)x_n + \alpha \mathbf{w}
+\end{equation}
+
+Using first-order gradient descent descent, we can now use the gradient to make a step change given some step-size $\eta$ and iterate until we converge to a solution.
+
+\begin{equation}
+\mathbf{w}^{t+1} \leftarrow \mathbf{w}^{t} - \eta \left[\sum_{n=1}^N \sigma(\textbf{w}^\top x_n) - t_n)x_n + \alpha \mathbf{w}^{t} \right]
+\end{equation}
+
+However, since we are interested in conducting stochastic gradient descent, each step update will use a single paired example $(x_{(i)}, t_{(i)})$ to make an update:
+
+\begin{equation}
+\mathbf{w}^{t+1} \leftarrow \mathbf{w}^{t} - \eta \left[ \left(\sigma(\mathbf{w}^t \cdot x_{(i)}) - y_{(i)}\right) x_{(i)} + \alpha \mathbf{w}^{t} \right]
+\end{equation}
+
+\begin{equation}
+c^{t+1} \leftarrow c^{t} - \eta (\sigma(\mathbf{w}^t \cdot x^{(i)}) - y^{(i)})
+\end{equation}
+
+After each update, the log loss given by equation (14) is computed to measure if the loss continues to decrease as wight updates are made.
+
+\textbf{\textit{Second-Order Stochastic Gradient Descent}}
+
+TODO
+
+
+\subsubsection{Implementation}
+
+To implement this upgrade, we will need to make the following changes to our model:
+
+\begin{itemize}
+\item Add an attribute to our initialization to specify the gradient descent method that should be used (e.g. \texttt{solver=\{'fo','so'\}})
+\item Create an \texttt{if} statement in the \texttt{fit()} method to update the weights accordingly
+\item Write out the math for the second-order gradient descent formula and implement in in the \texttt{fit()} method
+\end{itemize}
+
+TODO: Expand on implementation
+
+
+\subsubsection{Benefit(s)}
+
+It is widely accepted –and stated in the lecture notes– that second-order gradient descent is the "gold standard form MAP estimation". However, unlike linear regression it is not able to converge to the optimal solution in a single step. Regardless, it is expected that that implementing a second order gradient descent for logistic regression MAP estimation greatly reduces the number of iterations needed to converge.
+
+We think that this will not only help reduce the high number of iterations observed with first-order SGD, but also possibly help improve the prediction accuracy as well. First-order SGD is notorious for having high variance loss convergence, making it easier to prematurely end the convergence loop or to overshoot the posterior maxima.
+
+
+\subsection{Upgrade 2: Changing Prior}
+
+\subsubsection{Description}
+
+A typical prior used in logistic regression is a 0 mean prior with a small precision. The spike-and-slab prior \footnote{\url{https://en.wikipedia.org/wiki/Spike-and-slab_regression}}, on the other hand, is a Gaussian mixture model (GMM) is used to combine two MVNs as a single prior. In this case, both MVNs will be 0 mean, but one with high precision, and the other with low precision. The MVN with lower precision is allocated a larger weight ($\pi_1 = 0.8$), while the other is allocated a lower weight ($\pi = 0.2$).
+
+This upgrade falls under \textbf{Option 1} (Changing the prior) out those provided.
+
+\subsubsection{Relevant Equations}
+
+%%TODO
+TODO
+
+\subsubsection{Implementation}
+
+To implement this upgrade, we will need to make the following changes to our model:
+
+\begin{itemize}
+\item Add an attribute to our initialization to specify the prior that should be used (e.g. \texttt{prior=\{'trivial','sas'\}})
+\item Create an \texttt{if} statement in the \texttt{fit()} method to update the weights accordingly
+\item Write out the math for the first and second-order gradient descent formula with a spike-and-slab prior and implement in in the \texttt{fit()} method
+\end{itemize}
+
+TODO: Expand
+
+\subsubsection{Benefit(s)}
+
+We expect that, with 166 features, some features should conceivably have little to no weight while others will bear the brunt of prediction. This prediction is gleaned from our data exploration in Checkpoint 1, where we observed that many features were highly positively and negatively correlated with each other. Hence, we expect that a spike-and-slab prior will be able to randomly explore higher magnitude weights for some features, while assuming most to be close to 0 mean. It is also claimed that "in statistics, spike-and-slab regression is a Bayesian variable selection technique that is particularly useful when the number of possible predictors is larger than the number of observations". Although it does not seem that we have more predictors (features) than we do examples, it should be noted that many examples in our dataset are replicate molecules with different confirmations. Therefore, by number of unique molecules, we really only have 102 examples, which means that the benefit quoted may apply to our dataset. At the moment, our model with a trivial prior is converging on a weight vector solution that is yielding poor prediction accuracy. Perhaps a spike-and-slab prior will help address this problem.
+
+\section{Questions/Issues you want advice on}
+
+In this section, you may (but aren't require to) fill out this bulleted list with questions you have that we can try to help with.  Please provide enough relevant detail.  For example, if gradient descent isn't converging, tell us what your convergence criteria is and what the behavior is (at the minimum).
+
+\begin{itemize}
+	\item Question 1: ...
+\end{itemize}
+
+\textbf{Subsection grading rubric: N/A}
+
+\end{document}
+
+

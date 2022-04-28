@@ -1,0 +1,14 @@
+\contentsline {section}{Recap of your dataset, your model, and the issues you hope to address with your upgrade}{2}{section*.2}%
+\contentsline {section}{Detailed description of your upgrade}{3}{section*.3}%
+\contentsline {subsection}{Overview}{3}{section*.4}%
+\contentsline {subsection}{Upgrade 1: First to Second-Order Gradient Descent}{4}{section*.5}%
+\contentsline {subsubsection}{Description}{4}{section*.6}%
+\contentsline {subsubsection}{Relevant Equations}{4}{section*.7}%
+\contentsline {subsubsection}{Implementation}{7}{section*.8}%
+\contentsline {subsubsection}{Benefit(s)}{7}{section*.9}%
+\contentsline {subsection}{Upgrade 2: Changing Prior}{7}{section*.10}%
+\contentsline {subsubsection}{Description}{7}{section*.11}%
+\contentsline {subsubsection}{Relevant Equations}{8}{section*.12}%
+\contentsline {subsubsection}{Implementation}{8}{section*.13}%
+\contentsline {subsubsection}{Benefit(s)}{8}{section*.14}%
+\contentsline {section}{Questions/Issues you want advice on}{9}{section*.15}%
