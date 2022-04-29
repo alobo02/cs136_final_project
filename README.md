@@ -30,3 +30,9 @@
     - Consider running code with autograd in case we have messed up our derivative equations
 - General notes:
     - Looks like our sign might be inverted?
+
+## Checkpoint 3:
+- Nate worked on section 1. Looks mostly done now
+- Alex worked on equations for Upgrade 1.
+    - Still need to work on implementation
+- Alex aked Nate to help with equations for upgrade 2 since it's taking a bit long
