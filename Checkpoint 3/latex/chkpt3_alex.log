@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021) (preloaded format=pdflatex 2022.2.7)  27 APR 2022 22:47
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021) (preloaded format=pdflatex 2022.2.7)  28 APR 2022 22:10
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -600,25 +600,25 @@ Overfull \hbox (3.71045pt too wide) detected at line 175
 it/12 \OT1/cmr/bx/n/12 w[]w \OT1/cmr/m/n/12 + [][] 
  []
 
-[6]
+[6] [7]
 LaTeX Font Info:    Trying to load font information for OMS+pcr on input line 2
-17.
+57.
  (/usr/local/texlive/2021/texmf-dist/tex/latex/psnfss/omspcr.fd
 File: omspcr.fd 
 )
 LaTeX Font Info:    Font shape `OMS/pcr/m/n' in size <12> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 217.
- [7]
-[8] [9] (./chkpt3_alex.aux)
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 257.
+
+[8] [9] [10] (./chkpt3_alex.aux)
 Package rerunfilecheck Info: File `chkpt3_alex.out' has not changed.
 (rerunfilecheck)             Checksum: 7C4E88AFE2352B4E841FC7AAF1FFB275;2585.
  ) 
 Here is how much of TeX's memory you used:
- 13867 strings out of 478994
- 214139 string characters out of 5858185
- 546593 words of memory out of 5000000
+ 13890 strings out of 478994
+ 214355 string characters out of 5858185
+ 546595 words of memory out of 5000000
  30916 multiletter control sequences out of 15000+600000
- 433851 words of font info for 177 fonts, out of 8000000 for 9000
+ 434324 words of font info for 185 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  71i,12n,74p,1242b,349s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2021/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/t
@@ -629,19 +629,21 @@ ve/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/texliv
 e/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/
 2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/20
 21/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2021
-/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2021/te
-xmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2021/tex
-mf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2021/texmf
--dist/fonts/type1/public/amsfonts/latxfont/line10.pfb></usr/local/texlive/2021/
-texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive/2
-021/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/local/texlive/2021/texm
-f-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2021/texmf-dist/fon
-ts/type1/urw/times/utmbi8a.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/
-urw/times/utmr8a.pfb>
-Output written on chkpt3_alex.pdf (9 pages, 166473 bytes).
+/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2021/te
+xmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2021/texmf
+-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2021/texmf-
+dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/local/texlive/2021/texmf-di
+st/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2021/texmf-dist
+/fonts/type1/public/amsfonts/latxfont/line10.pfb></usr/local/texlive/2021/texmf
+-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive/2021/t
+exmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/local/texlive/2021/texmf-dis
+t/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2021/texmf-dist/fonts/ty
+pe1/urw/times/utmbi8a.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/urw/t
+imes/utmr8a.pfb>
+Output written on chkpt3_alex.pdf (10 pages, 188141 bytes).
 PDF statistics:
- 225 PDF objects out of 1000 (max. 8388607)
- 196 compressed objects within 2 object streams
- 50 named destinations out of 1000 (max. 500000)
+ 250 PDF objects out of 1000 (max. 8388607)
+ 217 compressed objects within 3 object streams
+ 61 named destinations out of 1000 (max. 500000)
  52337 words of extra memory for PDF output out of 61914 (max. 10000000)
 

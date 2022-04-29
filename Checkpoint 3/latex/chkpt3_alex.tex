@@ -123,7 +123,7 @@ where $M$ is feature dimension and $-\ln p(\textbf{w}|\textbf{t})$ is the negati
 
 We then have two options to choose from: first-order and second-order gradient descent. First order gradient descent uses a first-order derivative of the Posterior to make a step change in the weight vector, while second-order gradient descent uses a second-order derivative.
 
-This upgrade falls under \textbf{Option 3} (Changing the inference method) out those provided.
+This upgrade falls under \textbf{Option 3} (Changing the inference method) out of those provided.
 
 \subsubsection{Relevant Equations}
 
@@ -192,10 +192,10 @@ Using first-order gradient descent descent, we can now use the gradient to make 
 \mathbf{w}^{t+1} \leftarrow \mathbf{w}^{t} - \eta \left[\sum_{n=1}^N \sigma(\textbf{w}^\top x_n) - t_n)x_n + \alpha \mathbf{w}^{t} \right]
 \end{equation}
 
-However, since we are interested in conducting stochastic gradient descent, each step update will use a single paired example $(x_{(i)}, t_{(i)})$ to make an update:
+However, since we are interested in conducting stochastic gradient descent, each step update will use a single paired example $(x^{(i)}, t^{(i)})$ to make an update:
 
 \begin{equation}
-\mathbf{w}^{t+1} \leftarrow \mathbf{w}^{t} - \eta \left[ \left(\sigma(\mathbf{w}^t \cdot x_{(i)}) - y_{(i)}\right) x_{(i)} + \alpha \mathbf{w}^{t} \right]
+\mathbf{w}^{t+1} \leftarrow \mathbf{w}^{t} - \eta \left[ \left(\sigma(\mathbf{w}^t \cdot x^{(i)}) - y^{(i)}\right) x^{(i)} + \alpha \mathbf{w}^{t} \right]
 \end{equation}
 
 \begin{equation}
@@ -206,20 +206,60 @@ After each update, the log loss given by equation (14) is computed to measure if
 
 \textbf{\textit{Second-Order Stochastic Gradient Descent}}
 
-TODO
+In order to perform second-order stochastic gradient descent, we must take the second derivative of the log loss function in order to obtain the Hessian matrix. We can consider the first-order gradient vector $g(\mathbf{w}) \in \mathbb{R}^M$ to be a function of $\mathbf{w}$
+
+\begin{align}
+g(\mathbf{w}) = \nabla_\mathbf{w} \ln \mathcal{L} &= \sum_{n=1}^N (\sigma(\textbf{w}^\top x_n) - t_n)x_n + \alpha \mathbf{w} \\
+&= \mathbf{x}^\top (\sigma(\mathbf{x} \textbf{w}) - t_n) + \alpha \mathbf{w}
+\end{align}
+
+Then, we can consider the second-order gradient Hessian matrix $H(\mathbf{w}) \in \mathbb{R}^{M \times M}$ to be
+
+\begin{equation}
+H(\mathbf{w}) = \nabla_\mathbf{w} \nabla_\mathbf{w} = \mathbf{x}^\top R(\mathbf{w}) \mathbf{x} + \alpha I_M
+\end{equation}
+
+where $R(\mathbf{w}) \in \mathbb{R}^{N \times N}$ is defined as
+
+\begin{equation}
+R(\mathbf{w}) =
+  \begin{bmatrix}
+    \sigma(\textbf{w}^\top x_n)\sigma(-\textbf{w}^\top x_n) & & \\
+    & \ddots & \\
+    & & \sigma(\textbf{w}^\top x_n) \sigma(-\textbf{w}^\top x_n)
+  \end{bmatrix}
+\end{equation}
+
+a diagonal matrix with all 0 off-diagonal entries. Now each update in the weight vector is
+
+\begin{equation}
+\mathbf{w}^{t+1} \leftarrow \mathbf{w}^{t} - \eta H(\mathbf{w}^{t})^{-1} g(\mathbf{w}^{t})
+\end{equation}
+
+But, once again, we are interested in stochastic gradient descent, so the weight update will be updated using a single paired example $(x^{(i)}, t^{(i)})$ to make an update:
+
+\begin{equation}
+\mathbf{w}^{t+1} \leftarrow \mathbf{w}^{t} - \eta \underbrace{\left[r_{(i)}(\mathbf{w^t}) (x_{(i)} \otimes x_{(i)}) + \alpha \right]^{-1}}_{H_{(i)}(\mathbf{w}^t)^{-1}} \underbrace{\left[ \left(\sigma(\mathbf{w}^t \cdot x^{(i)}) - y^{(i)}\right) x^{(i)} + \alpha \mathbf{w}^{t} \right]}_{g_{(i)}(\mathbf{w}^t)}
+\end{equation}
+
+where $r_{(i)}(\mathbf{w})$ is the i-th diagonal element in $R(\mathbf{w})$:
+
+\begin{equation}
+r_{(i)}(\mathbf{w}) = \sigma(\textbf{w}^t \cdot x_{(i)})\sigma(-\textbf{w}^t \cdot x_{(i)})
+\end{equation}
 
 
 \subsubsection{Implementation}
 
 To implement this upgrade, we will need to make the following changes to our model:
 
-\begin{itemize}
+\begin{enumerate}
 \item Add an attribute to our initialization to specify the gradient descent method that should be used (e.g. \texttt{solver=\{'fo','so'\}})
 \item Create an \texttt{if} statement in the \texttt{fit()} method to update the weights accordingly
-\item Write out the math for the second-order gradient descent formula and implement in in the \texttt{fit()} method
-\end{itemize}
+\item Use the second-order gradient descent formula and implement it in the \texttt{fit()} method 
+\end{enumerate}
 
-TODO: Expand on implementation
+At the moment, our first-order stochastic gradient descent algorithm checks the log loss function defined in literature for convergence. Instead, for both first and second-order, we will need to make sure that we evaluate equation (13) as our loss function.
 
 
 \subsubsection{Benefit(s)}
@@ -228,6 +268,7 @@ It is widely accepted –and stated in the lecture notes– that second-order gr
 
 We think that this will not only help reduce the high number of iterations observed with first-order SGD, but also possibly help improve the prediction accuracy as well. First-order SGD is notorious for having high variance loss convergence, making it easier to prematurely end the convergence loop or to overshoot the posterior maxima.
 
+\newpage
 
 \subsection{Upgrade 2: Changing Prior}
 
@@ -235,7 +276,7 @@ We think that this will not only help reduce the high number of iterations obser
 
 A typical prior used in logistic regression is a 0 mean prior with a small precision. The spike-and-slab prior \footnote{\url{https://en.wikipedia.org/wiki/Spike-and-slab_regression}}, on the other hand, is a Gaussian mixture model (GMM) is used to combine two MVNs as a single prior. In this case, both MVNs will be 0 mean, but one with high precision, and the other with low precision. The MVN with lower precision is allocated a larger weight ($\pi_1 = 0.8$), while the other is allocated a lower weight ($\pi = 0.2$).
 
-This upgrade falls under \textbf{Option 1} (Changing the prior) out those provided.
+This upgrade falls under \textbf{Option 1} (Changing the prior) out of those provided.
 
 \subsubsection{Relevant Equations}
 
