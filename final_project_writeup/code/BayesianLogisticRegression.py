@@ -134,7 +134,7 @@ class MAPEstimator():
 
                 while(self.iteration_count <= self.max_iter) and (diff_L > self.tol):
                     L_prev = L
-                    L = -(train_y[:, np.newaxis].T @ np.log(sigmoid(train_X @ self.w_D + self.c)) + (1 - train_y[:, np.newaxis]).T @ np.log(1 - sigmoid(train_X @ self.w_D + self.c))) + 0.5 * self.alpha * self.w_D.T @ self.w_D.T
+                    L = -(1/num_examples) * (train_y[:, np.newaxis].T @ np.log(sigmoid(train_X @ self.w_D + self.c)) + (1 - train_y[:, np.newaxis]).T @ np.log(1 - sigmoid(train_X @ self.w_D + self.c))) + 0.5 * self.alpha * self.w_D.T @ self.w_D.T
                 
                 # TODO : spit out a warning if the max_iter is reached
                     #print('iteration: %i' % self.iteration_count)
@@ -212,7 +212,7 @@ class MAPEstimator():
         
         return sig_preds
 
-    def score(self, test_X, test_y):
+    def score(self, test_X, test_y, threshold):
         ''' Compute the average log probability of words in provided list
 
         Args
@@ -230,7 +230,7 @@ class MAPEstimator():
         num_examples = len(test_X)
         
         pred_proba = self.predict_proba(test_X)
-        pred_class = pred_proba > 0.7
+        pred_class = pred_proba > threshold
         is_correct = pred_class == test_y
         
         return np.sum(is_correct) / num_examples
