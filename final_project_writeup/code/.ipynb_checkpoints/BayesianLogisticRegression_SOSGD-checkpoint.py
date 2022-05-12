@@ -97,31 +97,38 @@ class MAPEstimator():
             example_num = 0
             num_examples = len(train_X)
             self.loss_array = []
+            
+            X = np.hstack((np.ones((num_examples,1)), train_X))
+            
             if self.prior == 'trivial':
-                count_10 = 0
-                loss_10 = []
-                L_avg = np.inf
                 diff_L = np.inf
-                L_avg_prev = np.inf
                 L = np.inf
+                
                 prng = RandomState(136)
+                
                 while(self.iteration_count <= self.max_iter) and (diff_L > self.tol):
                     L_prev = L
-                    L = -(train_y[:, np.newaxis].T @ np.log(sigmoid(train_X @ self.w_D + self.c)) + (1 - train_y[:, np.newaxis]).T @ np.log(1 - sigmoid(train_X @ self.w_D + self.c))) + 0.5 * self.alpha * self.w_D.T @ self.w_D.T
+                    L = (-(train_y[:, np.newaxis].T @ np.log(sigmoid(X @ self.w)) + (1 - train_y[:, np.newaxis]).T @ np.log(1 - sigmoid(X @ self.w))) + 0.5 * self.alpha * np.dot(self.w, self.w)) / num_examples
+                    
                     example_num = prng.randint(0, num_examples-1)
-                    h_x = np.dot(self.w_D, train_X[example_num]) + self.c
-                    sig = 1 / (1 + np.exp(-h_x))
+                    
+                    y = sigmoid(X @ self.w)
+                    g = X.T @ (y - train_y) + self.alpha * self.w
+                    
+                    ## Old (stochastic)
+                    #h_x = np.dot(self.w_D, train_X[example_num]) + self.c
+                    #sig = 1 / (1 + np.exp(-h_x))
                     diff_L = np.abs(L_prev - L)
                     self.loss_array.append(L)
                     if self.step_size_type == 'universal':
-                        self.w_D = self.w_D - self.step_size * ((sig - train_y[example_num]) * train_X[example_num] + self.alpha * self.w_D)
-                        self.c = self.c - self.step_size * (sig - train_y[example_num])
+                        self.w = self.w - self.step_size * g
+                        #self.c = self.c - self.step_size * (sig - train_y[example_num])
                     else:
                         self.w_D = self.w_D - (self.step_size + train_y[example_num]*self.step_size)* ((sig - train_y[example_num]) * train_X[example_num] + self.alpha * self.w_D)
                         self.c = self.c - (self.step_size + train_y[example_num]*self.step_size) * (sig - train_y[example_num])
                     self.iteration_count += 1
-                if self.iteration_count == self.max_iter:
-                    print("Maximum iterations reached")
+                if self.iteration_count >= self.max_iter:
+                    warnings.warn("Maximum iterations reached")
 
             #else:
                 #TODO: Code up the SGD for the sas prior
@@ -145,7 +152,7 @@ class MAPEstimator():
                     L_prev = L
                     #L = -(train_y[:, np.newaxis].T @ np.log(sigmoid(train_X @ self.w_D + self.c)) + (1 - train_y[:, np.newaxis]).T @ np.log(1 - sigmoid(train_X @ self.w_D + self.c))) + 0.5 * self.alpha * np.dot(self.w_D, self.w_D)
                     #L = -(train_y[:, np.newaxis].T @ np.log(sigmoid(train_X @ self.w_D + self.c)) + (1 - train_y[:, np.newaxis]).T @ np.log(1 - sigmoid(train_X @ self.w_D + self.c)))
-                    L = -(train_y[:, np.newaxis].T @ np.log(sigmoid(X @ self.w)) + (1 - train_y[:, np.newaxis]).T @ np.log(1 - sigmoid(X @ self.w)))
+                    L = (-(train_y[:, np.newaxis].T @ np.log(sigmoid(X @ self.w)) + (1 - train_y[:, np.newaxis]).T @ np.log(1 - sigmoid(X @ self.w))) + 0.5 * self.alpha * np.dot(self.w, self.w)) / num_examples
                     #print(L)
 
                 # TODO : spit out a warning if the max_iter is reached
@@ -183,8 +190,8 @@ class MAPEstimator():
                         self.c = self.c - (self.step_size + train_y[example_num]*self.step_size) * (1/r_n) * (sigmoid(np.dot(self.w_D, train_X[example_num]) + self.c) - train_y[example_num])
                     self.iteration_count += 1
 
-                if self.iteration_count == self.max_iter:
-                    print("Maximum iterations reached")
+                if self.iteration_count >= self.max_iter:
+                    warnings.warn("Maximum iterations reached")
 
             #else:
                 #TODO: Code up the SGD for the sas prior
@@ -217,7 +224,7 @@ class MAPEstimator():
         
         return sig_preds
 
-    def score(self, test_X, test_y):
+    def score(self, test_X, test_y, threshold):
         ''' Compute the average log probability of words in provided list
 
         Args
@@ -234,18 +241,11 @@ class MAPEstimator():
         correct_count = 0
         num_examples = len(test_y)
         
-        thresholds = np.linspace(0,1)
-        accuracies = []
-        for t in thresholds:
-            pred_proba = self.predict_proba(test_X)
-            pred_class = pred_proba > t
-            accuracy = np.sum(pred_class == test_y) / num_examples
-            accuracies.append(accuracy)
+        pred_proba = self.predict_proba(test_X)
+        pred_class = pred_proba > threshold
+        is_correct = pred_class == test_y
         
-        best_t = thresholds[np.argmax(accuracies)]
-        pred_class = pred_proba > best_t
-        best_accuracy = np.sum(pred_class == test_y) / num_examples
-        return best_accuracy
+        return np.sum(is_correct) / num_examples
     
     
 def sigmoid(X):
