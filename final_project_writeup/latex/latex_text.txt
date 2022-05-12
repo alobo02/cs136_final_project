@@ -1,0 +1,185 @@
+\documentclass[12pt]{article}
+\usepackage{fullpage} 
+\usepackage{microtype}      % microtypography
+\usepackage{array}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{amsthm}
+\usepackage{graphicx}
+
+%% Header
+\usepackage{fancyhdr}
+\fancyhf{}
+\fancyhead[C]{CS 136 - 2022s - Final project writeup Submission}
+\fancyfoot[C]{\thepage} % page number
+\renewcommand\headrulewidth{0pt}
+\pagestyle{fancy}
+
+\usepackage[headsep=0.5cm,headheight=2cm]{geometry}
+
+%% Hyperlinks always blue, no weird boxes
+\usepackage[hyphens]{url}
+\usepackage[colorlinks=true,allcolors=black,pdfborder={0 0 0}]{hyperref}
+
+%%% Doc layout
+\usepackage{parskip}
+\usepackage{times}
+
+%%% Write out problem statements in blue, solutions in black
+\usepackage{color}
+\newcommand{\officialdirections}[1]{{\color{blue} #1}}
+
+%%% Avoid automatic section numbers (we'll provide our own)
+\setcounter{secnumdepth}{0}
+
+\begin{document}
+~~\\ %% add vert space
+
+{\Large{\bf Student Names: Alex Lobo and Nate Davis}}
+
+
+{\Large{\bf Collaboration Statement:}}
+
+Turning in this assignment indicates you have abided by the course Collaboration Policy:
+
+\url{www.cs.tufts.edu/comp/136/2022s/index.html#collaboration-policy}
+
+Total hours spent: 20
+
+We consulted the following resources:
+\begin{itemize}
+\item Course website
+\item TODO
+\item $\ldots$	
+\end{itemize}
+
+\tableofcontents
+
+\newpage
+\section{Project Summary}
+
+Our dataset contains 6,598 confirmations (orientations/rotations) of 102 molecules, all of which have been classified in terms of smell as musk or non-musk by human experts. If a molecule has been deemed a musk, all of its confirmations are listed so, and the same is true for non-musks. The dataset is imbalanced, with 5,581 non-musks and 1,016 musks. The features of our dataset comprise 166 measures of intramolecular distance.
+
+We use a logistic regression model with sigmoid link function and multivariate Gaussian prior on the weight vector to predict whether a given confirmation is musk or non-musk. Our learning method is first-order stochastic gradient descent. In order to test for convergence, we calculate the log loss over every training example before each weight update and compare it to the log loss from the prior step.
+
+Our upgrade is a change of learning method to second-order stochastic gradient descent. The main problem we seek to address with this upgrade is the time it takes to train our model. Incorporating information from the second derivative of the loss function, as occurs in second-order gradient descent, should allow the model to converge more quickly.
+
+We have made some changes to our first-order gradient descent implementation since checkpoint 2, so we produce new baseline measurements below, but the metrics by which we compare our model pre- and post-upgrade are number of iterations until convergence, time until convergence, and accuracy.
+
+\section{Upgrade Implementation}
+
+In this section, you should describe the implementation of your upgrade.  Please describe any design choices you made when implementing it, focusing on things that changed since you submitted checkpoint 3.  Be sure to describe any issues you ran into when applying your upgrade to your dataset, as well as how you have addressed them.  For example, did you have trouble scaling the model to run in a reasonable amount of time on your dataset?  If so, what changes to either the code or dataset did you make and what was the outcome?
+
+This section should be at most 1/2 page.
+
+Please additionally submit the code that implements your upgrade and generates the results in this report in the separate Final Project Code submission.
+
+\textbf{Section grading rubric:}
+\begin{itemize}
+	\item Describe how you have implemented your upgrade (3 points)
+	\item Describe any bottlenecks you ran into (2 points)
+	\item Describe how you addressed bottlenecks (2 points)
+	\item Submitted code to implement the upgrade and generate results in the following section (10 points)
+\end{itemize}
+
+\section{Performance Hypotheses for Upgrade}
+
+\textbf{Hypothesis 1:} We hypothesize that our upgrade from first- to second-order gradient descent will cause our model to converge in fewer iterations because second-order gradient descent's incorporation of the second-degree derivative of the loss function should make each step more efficient in minimizing the loss.
+
+Our implementation of gradient descent keeps track of the number of iterations until convergence, and we look at the distribution of these counts over k-fold cross validation with 10 folds.
+
+\textbf{Hypothesis 2:} We hypothesize that our upgrade to second-order gradient descent will cause our model to converge in less time because, although time complexity of one step of second-order gradient descent is $O(m^3)$, versus $O(m)$ for first-order gradient descent (with $m$ being the size of the weight vector), the aforementioned incorporation of second-degree derivative information should lower the total number of steps 
+
+We calculate runtime until convergence using the python time() function for each of the 10 iterations in our k-fold cross validation.
+
+\textbf{Hypothesis 3:} We hypothesize that our upgrade to second-order gradient descent will have no major effect on the accuracy of our model, as in theory it should converge to the same minimum as first-order gradient descent, just faster.
+
+We measure accuracy on held-out data via k-fold cross validation with 10 folds.
+
+\section{Evaluating hypotheses for upgrade}
+
+For each of our hypotheses, we used the following hyperparameters for our learning methods:
+
+\begin{table}[h]
+\begin{tabular}{l|r|r|}
+\cline{2-3}
+                                      & First-Order Gradient Descent & \multicolumn{1}{l|}{Second-Order Gradient Descent} \\ \hline
+\multicolumn{1}{|l|}{step size}       & 0.0001                       & 0.1                                                \\ \hline
+\multicolumn{1}{|l|}{\alpha}           & 1                            & 1                                                  \\ \hline
+\multicolumn{1}{|l|}{max. iterations} & 1000                         & 1000                                               \\ \hline
+\multicolumn{1}{|l|}{tolerance}       & 0.00001                      & 0.01                                               \\ \hline
+\end{tabular}
+\caption{Hyperparameters used for each of our learning methods.}
+\label{tab:my-table}
+\end{table}
+
+\newpage
+
+DISCUSSION OF HYPERPARAMETER CHOICE
+
+\subsection{Hypothesis 1}
+
+We hypothesized that using second-order gradient descent, our model would converge in fewer iterations. To evaluate this hypothesis, we performed k-fold cross validation with 10 randomly selected folds on our model using both first- and second- order gradient descent. For each of the 10 folds, we tracked the number of iterations it took to converge.
+\begin{center}
+    \includegraphics[scale=.7]{iterations.png}
+\end{center}
+
+Every run of first-order gradient took almost two orders of magnitude more iterations than second-order gradient descent to converge, with each first-order run taking about 900 iterations and each second-order run taking ~20.
+
+\begin{itemize}
+ \item Analyze the implications of the result in approximately 1 paragraph.  This should link back to the specific dataset and model/learning method properties you included in your original hypothesis.  
+ \item Was your hypothesis correct?  Spend 2-3 sentences reflecting on why that might be the case.
+\end{itemize}
+
+\subsection{Hypothesis 2}
+
+We hypothesized that using second-order gradient descent, our model would converge in less time. To evaluate this hypothesis, we performed k-fold cross validation with 10 randomly selected folds on our model using both first- and second- order gradient descent. For each of the 10 folds, we tracked the time it took for the model to converge using the time() function in Python.
+
+\begin{center}
+    \includegraphics[scale=.7]{time.png}
+\end{center}
+
+In contrast to number of iterations, every run of second-order gradient descent took approximately 4 times longer than each run of first-order gradient descent.
+
+\begin{itemize}
+ \item Analyze the implications of the result in approximately 1 paragraph.  This should link back to the specific dataset and model/learning method properties you included in your original hypothesis.  
+ \item Was your hypothesis correct?  Spend 2-3 sentences reflecting on why that might be the case.
+\end{itemize}
+
+\subsection{Hypothesis 3}
+
+We hypothesized that using second-order gradient descent, our model would exhibit similar accuracy. To evaluate this hypothesis, we performed k-fold cross validation with 10 randomly selected folds on our model using both first- and second- order gradient descent. For each of the 10 folds, we tracked score the accuracy of our model on the held-out data.
+
+\begin{center}
+    \includegraphics[scale=.7]{accuracy.png}
+\end{center}
+
+While each method exhibited a range of accuracy, second-order gradient descent on average converged to a higher accuracy rate.
+
+\begin{itemize}
+ \item Analyze the implications of the result in approximately 1 paragraph.  This should link back to the specific dataset and model/learning method properties you included in your original hypothesis.  
+ \item Was your hypothesis correct?  Spend 2-3 sentences reflecting on why that might be the case.
+\end{itemize}
+
+\textbf{Subsection grading rubric (for each hypothesis):}
+\begin{itemize}
+	\item Describe implementation details of how you evaluated your hypothesis (1 point)
+	\item Include a specific result linked to the evaluation of your hypothesis (2 points)
+	\item Is your result coherently presented (axis labels, titles, legends etc) (1 point)
+	\item Description of the behavior of result (2 points)
+	\item Analysis of implication of result (3 points)
+	\item Link back to hypothesis: why was or wasn't it right? (2 points)
+\end{itemize}
+
+\section{Reflection}
+
+In this section, you should reflect on your project in 2-3 paragraphs, being sure to answer the following questions:
+\begin{itemize}
+	\item Did anything about how your original model worked on your data surprise you? (3 points)
+	\item What about your upgrade? (3 points)
+	\item If you were to continue working with this data, what would you like to try next?  Why? (3 points)
+\end{itemize}
+
+This section should 1/2-2/3 of a page long.
+
+\end{document}
+
