@@ -214,10 +214,6 @@ Now, the following steps are taking to implement the first- and second-order bat
 
 As discussed before, one of the issues we ran into was getting our second-order stochastic gradient descent method to converge. Although we could not figure out the issue (or even determine if it is even feasible), we addressed this issue by pivoting our project to focus on batch first and second-order gradient descent. Although we had to spend a bit of extra time to re-implement our pre-upgrade code, we are now able to obtain and analyze the results for both methods.
 
-\subsubsection{\textit{Weight updates}}
-
-TODO: Describe how keeping the bias and weight terms separate led to some issues.
-
 \subsubsection{\textit{Training Time}}
 
 Considering that the computational complexity ($O(m^3)$) of second-order gradient descent, we expected the second-order method to take a bit longer to converge than the first-order method when the hyperparameters are not optimally set. However, we instead found that the second-order method took much longer than expected. The second-order method is also a lot more sensitive to the step-size than the first order method is. As a result, it was much more difficult to tune the hyperparameters for the second-order method. Considering how long each grid search would take (10 minutes on average), we ultimately decided to limit the maximum iterations to 100 to save time.
@@ -246,9 +242,6 @@ Considering that the computational complexity ($O(m^3)$) of second-order gradien
 
 ~~\\
 
-TODO: Expand on "Links to previously described model or inference property of upgrade"
-
-TODO: Expand on "Links to previously described dataset property of upgrade"
 
 \newpage
 
@@ -276,7 +269,9 @@ tolerance          & 0.00001                          & 0.01                    
 \end{table}
 \end{center}
 
-TODO: DISCUSSION OF HYPERPARAMETER CHOICE
+Our goal with the hyperparameters we chose was to get as close to an apples to apples comparison as possible between first-order and second-order gradient descent. To start, we used grid search to optimize step size, $\alpha$, and tolerance for the accuracy of first-order gradient descent. We also set the maximum number of iterations high enough such that none of our runs hit it. 
+
+Our thought was that, using these same values, we could fairly test second-order gradient descent in comparison. We found, however, that with the same tolerance and step size, second-order gradient descent took an incredibly long amount of time, but that it could achieve similar or better heldout accuracy in fewer iterations when we raised these values. Therefore, we raised step size to 0.1 and tolerance to 0.01. Our thought as to why this might be required is that the inclusion of the inverse Hessian in the weight update formula for second order gradient descent might bring effective step size down a few orders of magnitude. Regardless, tweaking these values didn't change the results of our hypothesis tests, directionally speaking.
 
 \newpage
 
@@ -294,13 +289,7 @@ We hypothesized that using second-order gradient descent, our model would conver
 
 Every run of first-order gradient took almost two orders of magnitude more iterations than second-order gradient descent to converge, with each first-order run taking about 900 iterations and each second-order run taking ~20.
 
-TODO: Expand on results for each upgrade
-
-\begin{itemize}
- \item Analyze the implications of the result in approximately 1 paragraph.  This should link back to the specific dataset and model/learning method properties you included in your original hypothesis.  
- \item Was your hypothesis correct?  Spend 2-3 sentences reflecting on why that might be the case.
-\end{itemize}
-
+This result was in line with our hypothesis, though we did not expect the difference in magnitude to be this great. True to theory, incorporating second derivative information on the loss function certainly appears to have made each weight update more efficient. Even when we used the same step size and tolerance values for second-order gradient descent, this result held. 
 
 \newpage
 
@@ -318,12 +307,9 @@ We hypothesized that using second-order gradient descent, our model would conver
 
 In contrast to number of iterations, every run of second-order gradient descent took approximately 4 times longer than each run of first-order gradient descent.
 
-TODO: Expand on results for each upgrade
+This result, paired with the results of hypothesis test 1, shows that, although first-order gradient descent took approximately 45 times as many iterations to converge, it still took about 4 times longer for runs of second-order gradient descent to converge. These two findings imply that each iteration of second-order gradient descent took roughly 180 times longer than a single iteration of first-order gradient descent. That the weight vector had $m = 167$ dimensions, and a single iteration of second-order gradient descent is supposed to take $O(m^3)$ versus $O(m)$ for a single iteration of first-order gradient descent, we would in fact expect a single iteration to take $167^2 \approx$ 28,000 times longer. So, in theory, our second-order learning method ought to have taken even \textit{longer} relative to first-order (and it certainly would have if we had kept step size and tolerance constant, though not to this extent).
 
-\begin{itemize}
- \item Analyze the implications of the result in approximately 1 paragraph.  This should link back to the specific dataset and model/learning method properties you included in your original hypothesis.  
- \item Was your hypothesis correct?  Spend 2-3 sentences reflecting on why that might be the case.
-\end{itemize}
+Our hypothesis certainly proved false, though at this point we are not exactly sure why. There is obviously something about the nature of second-order (and/or first-order) gradient descent, or about our implementation of it, that we do not fully understand, or else these results would be easier to reconcile.
 
 \newpage
 
@@ -341,22 +327,9 @@ We hypothesized that using second-order gradient descent, our model would exhibi
 
 While each method exhibited a range of accuracy, second-order gradient descent on average converged to a higher accuracy rate.
 
-TODO: Expand on results for each upgrade
+This result implies that second-order gradient descent is able to get closer to the global minimum of the loss gradient, even with higher step size and tolerance levels. Perhaps this confirms that the inverse Hessian term in the weight update formula for second-order gradient descent acts as a sort of dynamic step size factor as we approach the global minimum, enabling it to delve deeper and more precisely into the minimum. This is strange as our tolerance for second-order gradient descent was three orders of magnitude higher than that for first-order. Perhaps on the last weight update for second-order, however, the method gets incredibly close to the actual global minimum, relative to first-order, and the last change in loss is still much smaller for second-order.
 
-\begin{itemize}
- \item Analyze the implications of the result in approximately 1 paragraph.  This should link back to the specific dataset and model/learning method properties you included in your original hypothesis.  
- \item Was your hypothesis correct?  Spend 2-3 sentences reflecting on why that might be the case.
-\end{itemize}
-
-\textbf{Subsection grading rubric (for each hypothesis):}
-\begin{itemize}
-	\item Describe implementation details of how you evaluated your hypothesis (1 point)
-	\item Include a specific result linked to the evaluation of your hypothesis (2 points)
-	\item Is your result coherently presented (axis labels, titles, legends etc) (1 point)
-	\item Description of the behavior of result (2 points)
-	\item Analysis of implication of result (3 points)
-	\item Link back to hypothesis: why was or wasn't it right? (2 points)
-\end{itemize}
+We failed to confirm our hypothesis here, although we were somewhat imprecise about wording it. The accuracy on heldout data for each learning method is certainly in the same neighborhood--all values fall between 0.93 and 0.96. That said, the accuracy associated with second-order gradient descent certainly appears to be generally higher. If we were to redo this hypothesis, we might be well served by defining more carefully what constitutes same or similar accuracy.
 
 \newpage
 
